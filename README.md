@@ -1,4 +1,14 @@
+<!-- studiomeyer-mcp-stack-banner:start -->
+> **Part of the [StudioMeyer MCP Stack](https://studiomeyer.io)** — Built in Mallorca 🌴 · ⭐ if you use it
+<!-- studiomeyer-mcp-stack-banner:end -->
+
 # statepilot
+
+[![PyPI](https://img.shields.io/pypi/v/statepilot.svg)](https://pypi.org/project/statepilot/)
+[![Python](https://img.shields.io/pypi/pyversions/statepilot.svg)](https://pypi.org/project/statepilot/)
+[![CI](https://github.com/studiomeyer-io/statepilot/actions/workflows/ci.yml/badge.svg)](https://github.com/studiomeyer-io/statepilot/actions/workflows/ci.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/studiomeyer-io/statepilot/badge)](https://scorecard.dev/viewer/?uri=github.com/studiomeyer-io/statepilot)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 **Deterministic state-machine guards for AI-agent workflows.**
 
