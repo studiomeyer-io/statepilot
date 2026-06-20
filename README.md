@@ -297,6 +297,16 @@ Beta (`0.1.0`). The core API (`StateMachine`, `Pilot`, `@guarded`) is what we
 intend to keep stable. No benchmarks are claimed — the design goal is
 correctness and a tiny footprint, not throughput. Issues and PRs welcome.
 
+## Related StudioMeyer open-source tools
+
+Other focused, production-grade tools for building and operating AI agents & MCP servers:
+
+- [skilldoctor](https://github.com/studiomeyer-io/skilldoctor) — linter + security scanner for agent skill files (SKILL.md / AGENTS.md / subagents)
+- [mcp-armor](https://github.com/studiomeyer-io/mcp-armor) — runtime defense sidecar for MCP servers
+- [mcp-gauntlet](https://github.com/studiomeyer-io/mcp-gauntlet) — fuzz + load test MCP servers before you ship
+- [mcp-otel](https://github.com/studiomeyer-io/mcp-otel) — W3C Trace Context → OpenTelemetry bridge for MCP
+- [mcp-cache-kit](https://github.com/studiomeyer-io/mcp-cache-kit) — leak-safe SEP-2549 caching for MCP
+
 ## License
 
 MIT © 2026 StudioMeyer. See [LICENSE](LICENSE).
