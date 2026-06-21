@@ -198,7 +198,9 @@ constraints are suggestions, not enforcement.
 A state machine turns those soft expectations into a hard contract that lives in
 code, runs on every tool call, and is trivial to unit-test. You get:
 
-- **Safety** — illegal tool sequences cannot happen; they raise instead.
+- **Safety** — illegal tool sequences cannot happen; they raise instead. The
+  guards fail *closed*: invalid input (e.g. a `NaN` cost) raises rather than
+  silently letting a step through.
 - **Cost control** — a real budget cap, enforced before the expensive call runs.
 - **Loop protection** — runaway repetition trips a clear, typed exception.
 - **Auditability** — `pilot.history` and `pilot.to_trace()` give you a complete,
@@ -236,7 +238,7 @@ Stateful runtime enforcer. Construct with the machine and optional limits:
 ```python
 Pilot(
     machine,
-    budget=None,              # cumulative cost cap
+    budget=None,              # cumulative cost cap (finite or None)
     max_steps=None,           # total steps cap
     max_state_visits=None,    # per-state visit cap (initial state counts as 1)
     max_consecutive_tool=None # same tool back-to-back cap
@@ -244,8 +246,12 @@ Pilot(
 ```
 
 - `.step(tool, *, cost=0.0) -> str` — validate + apply; returns the new state.
-  Raises on violation; state is unchanged on failure.
-- `.can(tool, *, cost=0.0) -> bool` — pure check, never mutates, never raises.
+  Raises on violation; state is unchanged on failure. `cost` must be finite
+  and `>= 0` — a non-finite cost (`NaN`/`inf`) raises `ValueError` rather than
+  silently slipping past the budget (fail-closed).
+- `.can(tool, *, cost=0.0) -> bool` — pure check, never mutates, never raises
+  for a guard decision (an invalid `cost` still raises `ValueError`, like
+  `.step`).
 - `.allowed_tools() -> tuple[str, ...]`, `.state`, `.done`, `.steps_taken`,
   `.cost_spent`, `.history`.
 - `.to_trace() -> dict` — JSON-serialisable run trace.

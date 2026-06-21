@@ -6,6 +6,21 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Security
+
+- **Fail-closed input validation on the cost/budget guard.** `Pilot.step`,
+  `Pilot.can` and `Pilot(...)` now reject non-finite `cost` / `budget`
+  (`NaN`, `inf`, `-inf`) with `ValueError`. Previously a `NaN` cost slipped
+  past the budget check (every comparison with `NaN` is `False`) *and*
+  poisoned `cost_spent` to `NaN`, silently disabling the budget guard for the
+  rest of the run; a `NaN`/`inf` budget disabled it from construction. The
+  guard now fails closed. (No API change for valid, finite inputs.)
+
+### Changed
+
+- CI: bumped GitHub Actions (`checkout@v7`, `upload-artifact@v7`,
+  `download-artifact@v8`, `codeql-action/upload-sarif@v4`).
+
 ## [0.1.0] - 2026-06-20
 
 Initial release.

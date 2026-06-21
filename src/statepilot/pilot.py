@@ -17,6 +17,7 @@ for logging or assertions in tests.
 
 from __future__ import annotations
 
+import math
 import time
 from dataclasses import dataclass, field
 from typing import Any
@@ -34,6 +35,22 @@ __all__ = ["Pilot", "StepRecord"]
 # Budget comparisons are forgiving by one tiny epsilon so that accumulating
 # e.g. 0.1 ten times does not spuriously trip a budget of exactly 1.0.
 _EPSILON = 1e-9
+
+
+def _validate_cost(cost: float) -> None:
+    """Validate a per-step ``cost``; raise :class:`ValueError` if it is invalid.
+
+    A cost must be a finite, non-negative number. ``NaN`` and ``inf`` are
+    rejected because they are programming errors that would silently defeat the
+    budget guard: every comparison against ``NaN`` is ``False``, so a single
+    ``NaN`` cost would pass the budget check *and* poison ``cost_spent`` so that
+    no later step ever trips the budget again. Rejecting them keeps the guard
+    fail-closed.
+    """
+    if not math.isfinite(cost):
+        raise ValueError(f"cost must be a finite number, got {cost!r}.")
+    if cost < 0:
+        raise ValueError("cost must be >= 0.")
 
 
 @dataclass(frozen=True, slots=True)
@@ -101,6 +118,13 @@ class Pilot:
     _consecutive_tool: int = field(init=False, default=0)
 
     def __post_init__(self) -> None:
+        # A NaN/inf budget would silently disable the budget guard for the whole
+        # run (no finite cost can ever exceed it), so reject non-finite budgets
+        # up front. None still means "no budget" by design.
+        if self.budget is not None and not math.isfinite(self.budget):
+            raise ValueError(
+                f"budget must be a finite number or None, got {self.budget!r}."
+            )
         if self.budget is not None and self.budget < 0:
             raise ValueError("budget must be >= 0 or None.")
         if self.max_steps is not None and self.max_steps < 0:
@@ -142,12 +166,11 @@ class Pilot:
         """Return ``True`` if :meth:`step` would currently accept ``tool``.
 
         Pure check — never mutates state and never raises for a guard violation.
-        (Like :meth:`step`, a negative ``cost`` is a programming error and raises
-        :class:`ValueError` — that is an invalid argument, not a guard decision.)
-        Useful for letting an agent *plan* before acting.
+        (Like :meth:`step`, a non-finite or negative ``cost`` is a programming
+        error and raises :class:`ValueError` — that is an invalid argument, not a
+        guard decision.) Useful for letting an agent *plan* before acting.
         """
-        if cost < 0:
-            raise ValueError("cost must be >= 0.")
+        _validate_cost(cost)
         if self.machine.is_terminal(self.state):
             return False
         dest = self.machine.resolve(self.state, tool)
@@ -186,8 +209,7 @@ class Pilot:
         :class:`StepRecord` is appended to :attr:`history`. On any violation the
         pilot's state is left unchanged.
         """
-        if cost < 0:
-            raise ValueError("cost must be >= 0.")
+        _validate_cost(cost)
 
         source = self.state
 
