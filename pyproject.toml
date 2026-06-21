@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "statepilot"
-version = "0.1.0"
+version = "0.1.1"
 description = "Deterministic state-machine guards for AI-agent workflows: enforce which tools an agent may call, in which order, with loop detection, cost budgets and step caps."
 readme = "README.md"
 requires-python = ">=3.10"
