@@ -52,10 +52,10 @@ from statepilot import StateMachine, Pilot
 machine = (
     StateMachine.builder()
     .initial("research")
-    .transition("research", "research", tool="search")      # looping allowed...
+    .transition("research", "research", tool="search")  # looping allowed...
     .transition("research", "draft", tool="write_draft")
     .transition("draft", "review", tool="review")
-    .transition("review", "draft", tool="revise")           # send it back
+    .transition("review", "draft", tool="revise")  # send it back
     .transition("review", "published", tool="publish")
     .terminal("published")
     .build()
@@ -63,12 +63,12 @@ machine = (
 
 pilot = Pilot(machine, budget=5.0, max_state_visits=4, max_steps=20)
 
-pilot.step("search", cost=0.5)        # ok, still in "research"
-pilot.step("write_draft", cost=1.0)   # -> "draft"
-pilot.step("review")                  # -> "review"
-pilot.step("publish")                 # -> "published" (terminal)
+pilot.step("search", cost=0.5)  # ok, still in "research"
+pilot.step("write_draft", cost=1.0)  # -> "draft"
+pilot.step("review")  # -> "review"
+pilot.step("publish")  # -> "published" (terminal)
 
-pilot.step("review")                  # raises TransitionError: terminal state
+pilot.step("review")  # raises TransitionError: terminal state
 ```
 
 Every accepted step is recorded:
@@ -96,19 +96,22 @@ machine = (
 )
 pilot = Pilot(machine, budget=5.0)
 
-@guarded(pilot, cost=1.0)                 # tool name defaults to the function name
+
+@guarded(pilot, cost=1.0)  # tool name defaults to the function name
 def search(query: str) -> list[str]:
     return real_search(query)
 
-@guarded(pilot, tool="write_draft")       # or name it explicitly
+
+@guarded(pilot, tool="write_draft")  # or name it explicitly
 def make_draft(notes: list[str]) -> str:
     return real_draft(notes)
 
-search("agent guardrails")                # advances the machine, charges 1.0
-make_draft(["..."])                       # -> "draft"
+
+search("agent guardrails")  # advances the machine, charges 1.0
+make_draft(["..."])  # -> "draft"
 
 try:
-    make_draft(["..."])                   # already terminal
+    make_draft(["..."])  # already terminal
 except GuardViolation as exc:
     print("blocked:", exc)
 ```
@@ -165,14 +168,18 @@ machine = (
 # initial visit counts as 1, so max_state_visits=4 allows 3 extra research loops
 pilot = Pilot(machine, budget=5.0, max_state_visits=4, max_steps=25)
 
+
 @guarded(pilot, cost=0.8)
 def search(q: str) -> str: ...
+
 
 @guarded(pilot, cost=1.2)
 def write_draft(notes: str) -> str: ...
 
+
 @guarded(pilot)
 def review(draft: str) -> bool: ...
+
 
 @guarded(pilot, cost=0.3)
 def publish(draft: str) -> str: ...
@@ -238,10 +245,10 @@ Stateful runtime enforcer. Construct with the machine and optional limits:
 ```python
 Pilot(
     machine,
-    budget=None,              # cumulative cost cap (finite or None)
-    max_steps=None,           # total steps cap
-    max_state_visits=None,    # per-state visit cap (initial state counts as 1)
-    max_consecutive_tool=None # same tool back-to-back cap
+    budget=None,  # cumulative cost cap (finite or None)
+    max_steps=None,  # total steps cap
+    max_state_visits=None,  # per-state visit cap (initial state counts as 1)
+    max_consecutive_tool=None,  # same tool back-to-back cap
 )
 ```
 
